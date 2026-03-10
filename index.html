@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>📋 Papan Catatan dengan Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+        }
+        
+        /* Auth Container (Login/Register) */
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h2 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .auth-header p {
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-top: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .toggle-link span {
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .toggle-link span:hover {
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            display: none;
+        }
+        
+        /* Main App Container (setelah login) */
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: none;
+        }
+        
+        .navbar {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .username {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .btn-logout {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .form-container h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        textarea, input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .notes-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .note-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+        
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .note-author {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .note-text {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .reply-form {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .reply-form input {
+            margin-bottom: 0;
+        }
+        
+        .reply-card {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            margin-left: 20px;
+        }
+        
+        .show-replies-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        
+        .badge-owner {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+        
+        .delete-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        
+        .delete-btn:hover {
+            background: #cc0000;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- AUTH CONTAINER (Login/Register) -->
+    <div id="authContainer" class="container">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2 id="authTitle">🔐 Login ke Catatan</h2>
+                <p id="authSubtitle">Masuk untuk melanjutkan</p>
+            </div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+            
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Masukkan username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Minimal 6 karakter" required>
+                </div>
+                
+                <button type="submit" id="authButton" class="btn btn-primary">Login</button>
+            </form>
+            
+            <div class="toggle-link">
+                <span id="toggleAuth">Belum punya akun? Daftar di sini</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MAIN APP CONTAINER (setelah login) -->
+    <div id="appContainer" class="app-container">
+        <div class="navbar">
+            <h2 style="color: #333;">📋 Papan Catatan</h2>
+            <div class="user-info">
+                <span class="username" id="displayUsername"></span>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <h3>✏️ Tulis Catatan Baru</h3>
+            <textarea id="noteText" placeholder="Tulis catatan lo di sini..."></textarea>
+            <button class="btn btn-primary" onclick="tambahCatatan()">Kirim Catatan</button>
+        </div>
+        
+        <div class="notes-container">
+            <h3 style="color: white; margin-bottom: 20px;">📌 Catatan Terbaru</h3>
+            <div id="loading" class="loading">⏳ Loading catatan...</div>
+            <div id="notesList"></div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            query, 
+            orderBy, 
+            onSnapshot, 
+            Timestamp,
+            deleteDoc,
+            doc 
+        } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+        
+        // 🔥 GANTI INI DENGAN FIREBASE CONFIG LO!
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRYE3TQgGh9NWKD45tUqFA_ZEQLmyhmp4",
+            authDomain: "cobajadwal-48f80.firebaseapp.com",
+            projectId: "cobajadwal-48f80",
+            storageBucket: "cobajadwal-48f80.firebasestorage.app",
+            messagingSenderId: "980850255828",
+            appId: "1:980850255828:web:0234918c3e64fb7e0bd841"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // ========== AUTH STATE ==========
+        let currentUser = null;
+        let unsubscribeMessages = null;
+        
+        // Cek status login
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User logged in
+                currentUser = user;
+                showApp();
+                loadMessages();
+                
+                // Tampilkan username (ambil dari email bagian depan)
+                const username = user.email.split('@')[0];
+                document.getElementById('displayUsername').textContent = username;
+            } else {
+                // User logged out
+                currentUser = null;
+                showAuth();
+                if (unsubscribeMessages) {
+                    unsubscribeMessages();
+                    unsubscribeMessages = null;
+                }
+            }
+        });
+        
+        // ========== AUTH FUNCTIONS ==========
+        let isLoginMode = true;
+        
+        document.getElementById('toggleAuth').addEventListener('click', () => {
+            isLoginMode = !isLoginMode;
+            updateAuthUI();
+        });
+        
+        function updateAuthUI() {
+            const title = document.getElementById('authTitle');
+            const subtitle = document.getElementById('authSubtitle');
+            const button = document.getElementById('authButton');
+            const toggle = document.getElementById('toggleAuth');
+            
+            if (isLoginMode) {
+                title.textContent = '🔐 Login ke Catatan';
+                subtitle.textContent = 'Masuk untuk melanjutkan';
+                button.textContent = 'Login';
+                toggle.textContent = 'Belum punya akun? Daftar di sini';
+            } else {
+                title.textContent = '📝 Daftar Akun Baru';
+                subtitle.textContent = 'Buat username dan password';
+                button.textContent = 'Daftar';
+                toggle.textContent = 'Sudah punya akun? Login di sini';
+            }
+            
+            // Reset messages
+            hideError();
+            hideSuccess();
+        }
+        
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+        }
+        
+        function hideSuccess() {
+            document.getElementById('successMessage').style.display = 'none';
+        }
+        
+        // Handle form submit (Login/Register)
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showError('Username dan password harus diisi!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('Password minimal 6 karakter!');
+                return;
+            }
+            
+            // Buat email format: username@cobajadwal-48f80.firebaseapp.com
+            const email = `${username}@cobajadwal-48f80.firebaseapp.com`;
+            
+            hideError();
+            hideSuccess();
+            
+            try {
+                if (isLoginMode) {
+                    // LOGIN
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showSuccess('Login berhasil!');
+                } else {
+                    // REGISTER
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showSuccess('Akun berhasil dibuat! Silakan login.');
+                    
+                    // Reset ke mode login
+                    isLoginMode = true;
+                    updateAuthUI();
+                    document.getElementById('authForm').reset();
+                }
+            } catch (error) {
+                console.error('Auth error:', error);
+                
+                // Handle error messages
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        showError('Username sudah digunakan!');
+                        break;
+                    case 'auth/invalid-email':
+                        showError('Username tidak valid!');
+                        break;
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                        showError('Username atau password salah!');
+                        break;
+                    default:
+                        showError('Error: ' + error.message);
+                }
+            }
+        });
+        
+        // Logout function
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+        
+        // ========== UI FUNCTIONS ==========
+        function showApp() {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        }
+        
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('notesList').innerHTML = '';
+        }
+        
+        // ========== MESSAGES FUNCTIONS ==========
+        function loadMessages() {
+            document.getElementById('loading').style.display = 'block';
+            
+            const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+            
+            unsubscribeMessages = onSnapshot(q, (querySnapshot) => {
+                const messages = [];
+                querySnapshot.forEach((doc) => {
+                    messages.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                document.getElementById('loading').style.display = 'none';
+                displayMessages(messages);
+                
+            }, (error) => {
+                console.error('Error loading messages:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('notesList').innerHTML = `
+                    <div style="color: white; text-align: center; padding: 20px;">
+                        ❌ Gagal load catatan: ${error.message}
+                    </div>
+                `;
+            });
+        }
+        
+        function displayMessages(messages) {
+            const notesList = document.getElementById('notesList');
+            
+            if (messages.length === 0) {
+                notesList.innerHTML = '<div style="color: white; text-align: center; padding: 30px;">📭 Belum ada catatan</div>';
+                return;
+            }
+            
+            // Pisahkan catatan utama dan balasan
+            const mainMessages = messages.filter(m => !m.parentId);
+            const replies = messages.filter(m => m.parentId);
+            
+            // Kelompokkan balasan
+            const repliesMap = {};
+            replies.forEach(r => {
+                if (!repliesMap[r.parentId]) repliesMap[r.parentId] = [];
+                repliesMap[r.parentId].push(r);
+            });
+            
+            let html = '';
+            mainMessages.forEach(msg => {
+                const waktu = msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleString('id-ID') : 'baru saja';
+                const isOwner = currentUser && msg.userId === currentUser.uid;
+                const msgReplies = repliesMap[msg.id] || [];
+                
+                html += `
+                    <div class="note-card" id="note-${msg.id}">
+                        <div class="note-header">
+                            <span>
+                                <span class="note-author">👤 ${escapeHtml(msg.author)}</span>
+                                ${isOwner ? '<span class="badge-owner">punyaku</span>' : ''}
+                            </span>
+                            <span>🕐 ${waktu}</span>
+                        </div>
+                        <div class="note-text">${escapeHtml(msg.text)}</div>
+                        
+                        ${isOwner ? `
+                            <button class="delete-btn" onclick="hapusCatatan('${msg.id}')">🗑️ Hapus</button>
+                        ` : ''}
+                        
+                        <button class="show-replies-btn" onclick="toggleReplies('${msg.id}')">
+                            💬 Lihat ${msgReplies.length} balasan
+                        </button>
+                        
+                        <div id="replies-${msg.id}" style="display: none;" class="replies-section">
+                `;
+                
+                // Tampilkan balasan
+                msgReplies.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                msgReplies.forEach(reply => {
+                    const waktuReply = reply.createdAt ? new Date(reply.createdAt.seconds * 1000).toLocaleString('id-ID') : 'baru saja';
+                    const isReplyOwner = currentUser && reply.userId === currentUser.uid;
+                    
+                    html += `
+                        <div class="reply-card">
+                            <div class="note-header">
+                                <span>
+                                    <span class="note-author">👤 ${escapeHtml(reply.author)}</span>
+                                    ${isReplyOwner ? '<span class="badge-owner">punyaku</span>' : ''}
+                                </span>
+                                <span>🕐 ${waktuReply}</span>
+                            </div>
+                            <div>${escapeHtml(reply.text)}</div>
+                            ${isReplyOwner ? `
+                                <button class="delete-btn" onclick="hapusCatatan('${reply.id}')">🗑️ Hapus</button>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                // Form balasan
+                html += `
+                            <div class="reply-form">
+                                <input type="text" id="reply-${msg.id}" placeholder="Tulis balasan...">
+                                <button class="btn btn-primary" style="width: auto;" onclick="balasCatatan('${msg.id}')">Kirim</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            notesList.innerHTML = html;
+        }
+        
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        // ========== CRUD FUNCTIONS ==========
+        window.tambahCatatan = async () => {
+            const text = document.getElementById('noteText').value.trim();
+            
+            if (!text) {
+                alert('Catatan tidak boleh kosong!');
+                return;
+            }
+            
+            try {
+                await addDoc(collection(db, "messages"), {
+                    text: text,
+                    author: currentUser.email.split('@')[0], // Username
+                    userId: currentUser.uid,
+                    parentId: null,
+                    createdAt: Timestamp.now()
+                });
+                
+                document.getElementById('noteText').value = '';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal menambah catatan: ' + error.message);
+            }
+        };
+        
+        window.balasCatatan = async (parentId) => {
+            const text = document.getElementById(`reply-${parentId}`).value.trim();
+            
+            if (!text) {
+                alert('Balasan tidak boleh kosong!');
+                return;
+            }
+            
+            try {
+                await addDoc(collection(db, "messages"), {
+                    text: text,
+                    author: currentUser.email.split('@')[0],
+                    userId: currentUser.uid,
+                    parentId: parentId,
+                    createdAt: Timestamp.now()
+                });
+                
+                document.getElementById(`reply-${parentId}`).value = '';
+                document.getElementById(`replies-${parentId}`).style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal membalas: ' + error.message);
+            }
+        };
+        
+        window.hapusCatatan = async (messageId) => {
+            if (!confirm('Yakin mau hapus catatan ini?')) return;
+            
+            try {
+                await deleteDoc(doc(db, "messages", messageId));
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal menghapus: ' + error.message);
+            }
+        };
+        
+        window.toggleReplies = (parentId) => {
+            const repliesDiv = document.getElementById(`replies-${parentId}`);
+            repliesDiv.style.display = repliesDiv.style.display === 'none' ? 'block' : 'none';
+        };
+    </script>
+</body>
+</html>
